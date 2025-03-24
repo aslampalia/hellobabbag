@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>March Budget Tracker</title>
+<style>
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 20px 0;
+}
+th, td {
+border: 1px solid #ddd;
+padding: 8px;
+text-align: center;
+}
+th {
+background-color: #4CAF50;
+color: white;
+}
+tr:nth-child(even) {
+background-color: #f2f2f2;
+}
+input[type="number"] {
+width: 80px;
+padding: 5px;
+border: 1px solid #ddd;
+}
+.total {
+background-color: #e6ffe6;
+font-weight: bold;
+}
+</style>
+</head>
+<body>
+<h2>March Monthly Budget Tracker</h2>
+
+<table>
+<tr>
+<th>Day</th>
+<th>Grocery</th>
+<th>Rent</th>
+<th>Car Expense</th>
+<th>Phone Bill</th>
+<th>Fast Food</th>
+<th>Loans</th>
+<th>Miscellaneous</th>
+<th>Daily Total</th>
+</tr>
+
+<!-- Generate 31 days -->
+<script>
+const categories = ['grocery', 'rent', 'car', 'phone', 'fastfood', 'loans', 'miscellaneous'];
+
+// Create rows for 31 days
+for(let day = 1; day <= 31; day++) {
+document.write(`<tr>
+<td>Mar ${day}</td>`);
+
+categories.forEach(cat => {
+document.write(`<td><input type="number" class="${cat}"
+data-day="${day}" oninput="saveAndCalculate(this)"></td>`);
+});
+
+document.write(`<td class="daily-total" id="day${day}-total">0.00</td></tr>`);
+}
+</script>
+
+<!-- Category Totals Row -->
+<tr class="total">
+<td>Category Totals</td>
+<td id="grocery-total">0.00</td>
+<td id="rent-total">0.00</td>
+<td id="car-total">0.00</td>
+<td id="phone-total">0.00</td>
+<td id="fastfood-total">0.00</td>
+<td id="loans-total">0.00</td>
+<td id="miscellaneous-total">0.00</td>
+<td id="grand-total">0.00</td>
+</tr>
+</table>
+
+<script>
+// Load saved data when page loads
+document.addEventListener('DOMContentLoaded', function() {
+document.querySelectorAll('input[type="number"]').forEach(input => {
+const key = `day${input.dataset.day}-${input.className}`;
+input.value = localStorage.getItem(key) || '';
+});
+calculateTotals();
+});
+
+function saveAndCalculate(input) {
+// Save to localStorage
+const key = `day${input.dataset.day}-${input.className}`;
+localStorage.setItem(key, input.value);
+
+// Update calculations
+calculateTotals();
+}
+
+function calculateTotals() {
+// Calculate category totals
+categories.forEach(cat => {
+let total = 0;
+document.querySelectorAll(`.${cat}`).forEach(input => {
+total += Number(input.value) || 0;
+});
+document.getElementById(`${cat}-total`).textContent = total.toFixed(2);
+});
+
+// Calculate daily totals
+let grandTotal = 0;
+for(let day = 1; day <= 31; day++) {
+let dailyTotal = 0;
+categories.forEach(cat => {
+const val = document.querySelector(`input[data-day="${day}"].${cat}`).value;
+dailyTotal += Number(val) || 0;
+});
+document.getElementById(`day${day}-total`).textContent = dailyTotal.toFixed(2);
+grandTotal += dailyTotal;
+}
+
+// Update grand total
+document.getElementById('grand-total').textContent = grandTotal.toFixed(2);
+}
+</script>
+</body>
+</html>
